@@ -1,0 +1,8 @@
+numpy
+joblib
+pillow
+albumentations
+fastapi[standard]
+tensorflow
+tensorflow-serving-api
+py-grpc-prometheus

@@ -1,0 +1,13 @@
+FROM hdgigante/python-opencv
+
+WORKDIR /yolo
+
+COPY requirements.txt /yolo/requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY . /yolo/app/client/
+
+EXPOSE 8000
+
+CMD ["fastapi", "run", "app/client/app.py"]

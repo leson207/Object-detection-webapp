@@ -1,0 +1,62 @@
+artifacts_root: artifacts
+
+IMAGE_SIZE: 224
+ANCHORS: 
+    - [[0.28, 0.22], [0.38, 0.48], [0.9, 0.78]]
+    - [[0.07, 0.15], [0.15, 0.11], [0.14, 0.29]]
+    - [[0.02, 0.03], [0.04, 0.07], [0.08, 0.06]]
+
+data_ingestor_config:
+  ARTIFACT_DIR: artifacts/data
+  DATASET_NAME: 'visual-layer/oxford-iiit-pet-vl-enriched'
+  BUCKET_NAME: 'leson207'
+  CLOUD_DIR: 'data'
+
+preprocessor_config:
+  ARTIFACT_DIR: artifacts/preprocessor
+  IMAGE_SIZE:
+  MEAN: [0,0,0]
+  STD: [1,1,1]
+  BRIGHTNESS: 0.5
+  CONTRAST: 0.5
+  SATURATION: 0.5
+  HUE: 0.5
+  PROB: 0.5
+
+data_module_config:
+  DATA_DIR: artifacts/data
+  PREPROCESSOR_DIR: artifacts/preprocessor
+  IMAGE_SIZE:
+  ANCHORS:
+  TRAIN_SIZE: 0.99
+
+loss_config:
+  ANCHORS:
+  LAMBDA_OBJ: 1
+  LAMBDA_NOOBJ: 1
+  LAMBDA_COORD: 1
+  LAMBDA_CLASS: 1
+
+model_config:
+  IN_CHANNELS: 3
+  NUM_CLASSES: 208
+
+training_config:
+  BATCH_SIZE: 1
+  NUM_EPOCHS: 1
+  LEARNING_RATE: 0.00001
+
+trainer_config:
+  ARTIFACT_DIR: artifacts/model
+  DATA_MODULE_CONFIG:
+  LOSS_CONFIG:
+  MODEL_CONFIG:
+  TRAINING_CONFIG:
+
+evaluator_config:
+  DATA_MODULE_CONFIG:
+  BATCH_SIZE: 4
+  LOSS_CONFIG:
+  PREPROCESSOR_PATH: artifacts/preprocessor/test_transform.pkl
+  KERAS_MODEL_PATH: artifacts/model/model.keras
+  SAVED_MODEL_PATH: artifacts/model/saved_model/1

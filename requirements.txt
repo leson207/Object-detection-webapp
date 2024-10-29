@@ -1,0 +1,17 @@
+tensorflow-cpu
+albumentations
+einops
+fastapi[standard]
+numpy
+pandas
+seaborn
+tqdm
+matplotlib
+datasets
+opencv-python
+python-box
+awscli
+joblib
+dvc
+tensorflow-serving-api
+py-grpc-prometheus

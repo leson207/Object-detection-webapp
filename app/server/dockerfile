@@ -1,0 +1,21 @@
+FROM tensorflow/serving:latest
+
+EXPOSE 8500
+EXPOSE 8501
+
+RUN mkdir -p /models/yolo
+COPY serve/1/ /models/yolo/1
+
+ENTRYPOINT ["/usr/bin/tensorflow_model_server", \
+            "--rest_api_port=8501", \
+            "--model_name=yolo", \
+            "--model_base_path=/models/yolo"]
+
+
+# docker run --rm -d -p 8501:8501 -p 8500:8500 \
+#   --mount type=bind,source=/home/leson207/vscode/yolo/artifacts/model/saved_model/,target=/models/yolo \
+#   -e MODEL_NAME=yolo -t tensorflow/serving
+
+# saved_model_cli show --dir artifacts/model/saved_model/1 --tag_set serve --signature_def serving_default
+
+# saved_model_cli show --dir artifacts/model/saved_model/1 --all

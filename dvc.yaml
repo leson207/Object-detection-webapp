@@ -1,0 +1,58 @@
+stages: 
+  ingestion:
+    cmd: python3 -m src.pipeline.ingestion
+    deps:
+      - src/pipeline/ingestion.py
+      - src/components/DataIngestor.py
+    params:
+      - data_ingestor_config
+    outs:
+      - artifacts/data
+  
+  transformation:
+    cmd: python3 -m src.pipeline.transformation
+    deps:
+      - src/pipeline/transformation.py
+      - src/components/Preprocessor.py
+    params:
+      - IMAGE_SIZE
+      - preprocessor_config
+    outs:
+      - artifacts/preprocessor/train_transform.pkl
+      - artifacts/preprocessor/test_transform.pkl
+  
+  training:
+    cmd: python3 -m src.pipeline.training
+    deps:
+      - src/pipeline/training.py
+      - src/components/DataModule.py
+      - src/components/Criterion.py
+      - src/components/Model.py
+      - src/components/Trainer.py
+      - artifacts/data
+      - artifacts/preprocessor/train_transform.pkl
+      - artifacts/preprocessor/test_transform.pkl
+    params:
+      - IMAGE_SIZE
+      - ANCHORS
+      - data_module_config
+      - loss_config
+      - model_config
+      - training_config
+      - trainer_config
+    outs:
+      - artifacts/model/model.keras
+      - artifacts/model/saved_model/1
+  
+  evaluation:
+    cmd: python3 -m src.pipeline.evaluation
+    deps:
+      - src/pipeline/evaluation.py
+      - artifacts/model/model.keras
+      - artifacts/model/saved_model/1
+    params:
+      - IMAGE_SIZE
+      - ANCHORS
+      - data_module_config
+      - loss_config
+      - evaluator_config

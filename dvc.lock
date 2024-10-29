@@ -1,0 +1,215 @@
+schema: '2.0'
+stages:
+  ingestion:
+    cmd: python3 -m src.pipeline.ingestion
+    deps:
+    - path: src/components/DataIngestor.py
+      hash: md5
+      md5: d86136c768e8bae1c3b1a30f672a9022
+      size: 2208
+    - path: src/pipeline/ingestion.py
+      hash: md5
+      md5: 9018fbc46e819d8eb2c9940a40e4ff90
+      size: 383
+    params:
+      params.yaml:
+        data_ingestor_config:
+          ARTIFACT_DIR: artifacts/data
+          DATASET_NAME: visual-layer/oxford-iiit-pet-vl-enriched
+          BUCKET_NAME: leson207
+          CLOUD_DIR: data
+    outs:
+    - path: artifacts/data
+      hash: md5
+      md5: 6b4f56510f7b7000f7f90ccb502e435b.dir
+      size: 281230646
+      nfiles: 9
+  transformation:
+    cmd: python3 -m src.pipeline.transformation
+    deps:
+    - path: src/components/Preprocessor.py
+      hash: md5
+      md5: 54c11fd7a04884daa94ffce55abd62e5
+      size: 1657
+    - path: src/pipeline/transformation.py
+      hash: md5
+      md5: 4b223ed6cde58a8738f3cfaeb1723669
+      size: 471
+    params:
+      params.yaml:
+        IMAGE_SIZE: 224
+        preprocessor_config:
+          ARTIFACT_DIR: artifacts/preprocessor
+          IMAGE_SIZE:
+          MEAN:
+          - 0
+          - 0
+          - 0
+          STD:
+          - 1
+          - 1
+          - 1
+          BRIGHTNESS: 0.5
+          CONTRAST: 0.5
+          SATURATION: 0.5
+          HUE: 0.5
+          PROB: 0.5
+    outs:
+    - path: artifacts/preprocessor/test_transform.pkl
+      hash: md5
+      md5: ce635e45228e83790010dba43494d767
+      size: 2001
+    - path: artifacts/preprocessor/train_transform.pkl
+      hash: md5
+      md5: ce635e45228e83790010dba43494d767
+      size: 2001
+  training:
+    cmd: python3 -m src.pipeline.training
+    deps:
+    - path: artifacts/data
+      hash: md5
+      md5: 331dc4361ae8179c4919ec1b4bfc41da.dir
+      size: 281261414
+      nfiles: 11
+    - path: artifacts/preprocessor/test_transform.pkl
+      hash: md5
+      md5: ce635e45228e83790010dba43494d767
+      size: 2001
+    - path: artifacts/preprocessor/train_transform.pkl
+      hash: md5
+      md5: ce635e45228e83790010dba43494d767
+      size: 2001
+    - path: src/components/Criterion.py
+      hash: md5
+      md5: 56b5e2cd41da314c1ff915988bf45536
+      size: 1889
+    - path: src/components/DataModule.py
+      hash: md5
+      md5: 7d16b89263894f606387203b5121c568
+      size: 5281
+    - path: src/components/Model.py
+      hash: md5
+      md5: 3f82f3211faa71bcdd94d164e1a26ce0
+      size: 5684
+    - path: src/components/Trainer.py
+      hash: md5
+      md5: e4813e6dcdb2d078b26cc0acd07b1b16
+      size: 2794
+    - path: src/pipeline/training.py
+      hash: md5
+      md5: 0313a88cf67a1abd1871d276a954c5ad
+      size: 272
+    params:
+      params.yaml:
+        ANCHORS:
+        - - - 0.28
+            - 0.22
+          - - 0.38
+            - 0.48
+          - - 0.9
+            - 0.78
+        - - - 0.07
+            - 0.15
+          - - 0.15
+            - 0.11
+          - - 0.14
+            - 0.29
+        - - - 0.02
+            - 0.03
+          - - 0.04
+            - 0.07
+          - - 0.08
+            - 0.06
+        IMAGE_SIZE: 224
+        data_module_config:
+          DATA_DIR: artifacts/data
+          PREPROCESSOR_DIR: artifacts/preprocessor
+          IMAGE_SIZE:
+          ANCHORS:
+          TRAIN_SIZE: 0.99
+        loss_config:
+          ANCHORS:
+          LAMBDA_OBJ: 1
+          LAMBDA_NOOBJ: 1
+          LAMBDA_COORD: 1
+          LAMBDA_CLASS: 1
+        model_config:
+          IN_CHANNELS: 3
+          NUM_CLASSES: 208
+        trainer_config:
+          ARTIFACT_DIR: artifacts/model
+          DATA_MODULE_CONFIG:
+          LOSS_CONFIG:
+          MODEL_CONFIG:
+          TRAINING_CONFIG:
+        training_config:
+          BATCH_SIZE: 1
+          NUM_EPOCHS: 1
+          LEARNING_RATE: 1e-05
+    outs:
+    - path: artifacts/model/model.keras
+      hash: md5
+      md5: bd7ee57fa5fe5e0127f6dade51db83cf
+      size: 230615
+    - path: artifacts/model/saved_model/1
+      hash: md5
+      md5: 1e27e65b87979dc052684cc5557f2024.dir
+      size: 479173
+      nfiles: 4
+  evaluation:
+    cmd: python3 -m src.pipeline.evaluation
+    deps:
+    - path: artifacts/model/model.keras
+      hash: md5
+      md5: bd7ee57fa5fe5e0127f6dade51db83cf
+      size: 230615
+    - path: artifacts/model/saved_model/1
+      hash: md5
+      md5: 1e27e65b87979dc052684cc5557f2024.dir
+      size: 479173
+      nfiles: 4
+    - path: src/pipeline/evaluation.py
+      hash: md5
+      md5: 5f3f8c2d77396715e45e3b2291532b6a
+      size: 287
+    params:
+      params.yaml:
+        ANCHORS:
+        - - - 0.28
+            - 0.22
+          - - 0.38
+            - 0.48
+          - - 0.9
+            - 0.78
+        - - - 0.07
+            - 0.15
+          - - 0.15
+            - 0.11
+          - - 0.14
+            - 0.29
+        - - - 0.02
+            - 0.03
+          - - 0.04
+            - 0.07
+          - - 0.08
+            - 0.06
+        IMAGE_SIZE: 224
+        data_module_config:
+          DATA_DIR: artifacts/data
+          PREPROCESSOR_DIR: artifacts/preprocessor
+          IMAGE_SIZE:
+          ANCHORS:
+          TRAIN_SIZE: 0.99
+        evaluator_config:
+          DATA_MODULE_CONFIG:
+          BATCH_SIZE: 4
+          LOSS_CONFIG:
+          PREPROCESSOR_PATH: artifacts/preprocessor/test_transform.pkl
+          KERAS_MODEL_PATH: artifacts/model/model.keras
+          SAVED_MODEL_PATH: artifacts/model/saved_model/1
+        loss_config:
+          ANCHORS:
+          LAMBDA_OBJ: 1
+          LAMBDA_NOOBJ: 1
+          LAMBDA_COORD: 1
+          LAMBDA_CLASS: 1
